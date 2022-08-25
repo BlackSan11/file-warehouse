@@ -12,12 +12,16 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import ru.gb.file.warehouse.netty.common.dto.GetFilesListRequest;
+import ru.gb.file.warehouse.netty.common.dto.UploadFileRequest;
 
 public class NettyClient {
 
     public static final int MAX_OBJECT_SIZE = 20 * 1_000_000;
+    public static final String TOKEN = "Bogdan:1234";
 
-    public static void main(String[] args) throws InterruptedException {
+    private final Channel clientChannel;
+
+    public NettyClient() {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(eventLoopGroup)
@@ -33,12 +37,17 @@ public class NettyClient {
                         );
                     }
                 });
-        ChannelFuture channelFuture = bootstrap.connect().sync();
-        Channel channel = channelFuture.channel();
 
-        GetFilesListRequest getFilesListRequest = new GetFilesListRequest("Bogdan:1234", "/");
-        channel.writeAndFlush(getFilesListRequest);
+        ChannelFuture channelFuture = bootstrap.connect();
+        this.clientChannel = channelFuture.channel();
+    }
 
-        channelFuture.channel().closeFuture().sync();
+    public void getFilesList() {
+        GetFilesListRequest getFilesListRequest = new GetFilesListRequest(TOKEN, "/");
+        clientChannel.writeAndFlush(getFilesListRequest);
+    }
+
+    public void uploadFile(UploadFileRequest uploadFileRequest) {
+        clientChannel.writeAndFlush(uploadFileRequest);
     }
 }

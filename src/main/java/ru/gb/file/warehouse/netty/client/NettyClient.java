@@ -48,6 +48,11 @@ public class NettyClient {
     }
 
     public void uploadFile(UploadFileRequest uploadFileRequest) {
-        clientChannel.writeAndFlush(uploadFileRequest);
+        try {
+            clientChannel.writeAndFlush(uploadFileRequest).sync();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
     }
 }

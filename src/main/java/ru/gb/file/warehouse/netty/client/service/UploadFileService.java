@@ -7,7 +7,7 @@ import ru.gb.file.warehouse.netty.common.dto.UploadFileRequest;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static ru.gb.file.warehouse.netty.client.NettyClient.TOKEN;
 
@@ -17,8 +17,8 @@ public class UploadFileService {
         Path filePath = Paths.get(pathToFile);
         NettyClient nettyClient = ObjectRegistry.getInstance(NettyClient.class);
         String fileName = filePath.getFileName().toString();
-        BiConsumer<byte[], Boolean> filePartConsumer = (filePartBytes, isLast) -> {
-            UploadFileRequest uploadFileRequest = new UploadFileRequest(TOKEN, fileName, filePartBytes, isLast);
+        Consumer<byte[]> filePartConsumer = filePartBytes -> {
+            UploadFileRequest uploadFileRequest = new UploadFileRequest(TOKEN, fileName, filePartBytes);
             nettyClient.uploadFile(uploadFileRequest);
         };
 
